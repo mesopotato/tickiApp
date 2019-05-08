@@ -28,8 +28,8 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <Text>Open up App.js to start working on your app!</Text>
-        {this.state.tickets.map((ticket, i) => (
-          <Text key={i}>{ticket.kategorie}</Text>
+        {this.state.tickets.map((events, i) => (
+          <Text key={i}>{events.title}</Text>
         ))}
       </View>
     );
