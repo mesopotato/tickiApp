@@ -9,13 +9,13 @@ export default class App extends React.Component {
 
   state = {
     loading: false,
-    tickets: []
+    events: []
   }
 
   async componentDidMount() {
     this.setState({loading: true});
     const data = await this.props.fetchTickets();
-    this.setState({ loading: false, tickets: data.tickets });
+    this.setState({ loading: false, events: data.events });
   }
   render() {
     if (this.state.loading){
@@ -28,8 +28,8 @@ export default class App extends React.Component {
     return (
       <View style={styles.container}>
         <Text>Open up App.js to start working on your app!</Text>
-        {this.state.tickets.map((events, i) => (
-          <Text key={i}>{events.title}</Text>
+        {this.state.events.map((event, i) => (
+          <Text key={i}>{event.title}</Text>
         ))}
       </View>
     );
