@@ -4,8 +4,8 @@ import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Alert, But
 
 import { FontAwesome } from '@expo/vector-icons';
 
-import {fetchTickets } from './constants/api';
-import {loginNow } from './constants/api';
+import { fetchTickets } from './constants/api';
+import { loginNow } from './constants/api';
 
 
 export default class App extends React.Component {
@@ -17,70 +17,116 @@ export default class App extends React.Component {
   state = {
     loading: false,
     events: [],
-    didError: false
+    didError: false,
+    tokenDa: false,
+    name: '',
+    password: '',
   }
   async onLogin() {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     const { name, password } = this.state;
-    
+
     //Alert.alert('Credentials', `${name} + ${password}`);
     console.log('test in onLogin');
     const answer = await this.props.loginNow(name, password);
-    if (answer.user == 'NO'){
-      this.setState({wrongUserName: true})
+    console.log('answer ist : ' + answer);
+    if (answer.user == 'NO') {
+      this.setState({ wrongUserName: true })
     }
-    if (answer.user == 'MISMATCH'){
-      this.setState({wrongPwd: true})
+    if (answer.user == 'MISMATCH') {
+      this.setState({ wrongPwd: true })
     }
-    if(answer.token){
-      this.setState({token: answer.token})
+    if (answer.token) {
+      this.setState({ token: answer.token })
+      this.setState({ tokenDa: true });
     }
-    this.setState({ loading: false})
+    this.setState({ loading: false })
   }
 
   async componentDidMount() {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     //const data = await this.props.fetchTickets();
-    this.setState({ loading: false});
+    this.setState({ loading: false });
   }
 
   render() {
-    if (this.state.loading){
+    if (this.state.loading) {
       loadingView();
     }
-    return (
+
+    return this.state.tokenDa ? (
       <View style={styles.container}>
-        <TextInput
-          value={this.state.name}
-          onChangeText={(name) => this.setState({ name })}
-          placeholder={'Username'}
-          style={styles.input}
-        />
-        <TextInput
-          value={this.state.password}
-          onChangeText={(password) => this.setState({ password })}
-          placeholder={'Password'}
-          secureTextEntry={true}
-          style={styles.input}
-        />
-        
-        <Button
-          title={'Login'}
-          style={styles.input}
-          onPress={this.onLogin.bind(this)}
-        />
+        <Text>Open up App.js to start working on your app!</Text>
       </View>
-    );
-  }
+    ) : (
+        <View style={styles.container}>
+          <TextInput
+            value={this.state.name}
+            onChangeText={(name) => this.setState({ name })}
+            placeholder={'Username'}
+            style={styles.input}
+          />
+          <TextInput
+            value={this.state.password}
+            onChangeText={(password) => this.setState({ password })}
+            placeholder={'Password'}
+            secureTextEntry={true}
+            style={styles.input}
+          />
+
+          <Button
+            title={'Login'}
+            style={styles.input}
+            onPress={this.onLogin.bind(this)}
+          />
+        </View>
+
+      )
+  };
+
+
 };
 
 displayMainview = () => {
   return (
     <View style={styles.container}>
       <Text>Open up App.js to start working on your app!</Text>
+    </View>
+  );
+}
+displayMainviewwithfetch = () => {
+  return (
+    <View style={styles.container}>
+      <Text>Open up App.js to start working on your app!</Text>
       {this.state.events.map((event, i) => (
         <Text key={i}>{event.title}</Text>
       ))}
+    </View>
+  );
+}
+
+displayLoginView = () => {
+  return (
+    <View style={styles.container}>
+      <TextInput
+        value={this.state.name}
+        onChangeText={(name) => this.setState({ name })}
+        placeholder={'Username'}
+        style={styles.input}
+      />
+      <TextInput
+        value={this.state.password}
+        onChangeText={(password) => this.setState({ password })}
+        placeholder={'Password'}
+        secureTextEntry={true}
+        style={styles.input}
+      />
+
+      <Button
+        title={'Login'}
+        style={styles.input}
+        onPress={this.onLogin.bind(this)}
+      />
     </View>
   );
 }
@@ -97,9 +143,9 @@ displayError = () => {
 
 loadingView = () => {
   return (
-      <View style={styles.container}>
-        <ActivityIndicator size='large'/>
-      </View>  
+    <View style={styles.container}>
+      <ActivityIndicator size='large' />
+    </View>
   );
 }
 
