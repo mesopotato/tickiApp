@@ -1,11 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Alert, Button, TextInput } from 'react-native';
 
 
 import { FontAwesome } from '@expo/vector-icons';
 
 import {fetchTickets } from './constants/api';
 import {loginNow } from './constants/api';
+
 
 export default class App extends React.Component {
   static defaultProps = {
@@ -18,10 +19,12 @@ export default class App extends React.Component {
     events: [],
     didError: false
   }
-  onLogin() {
-    const { name, password } = this.state;
+  async onLogin() {
     this.setState({loading: true});
-    Alert.alert('Credentials', `${name} + ${password}`);
+    const { name, password } = this.state;
+    
+    //Alert.alert('Credentials', `${name} + ${password}`);
+    console.log('test in onLogin');
     const answer = await this.props.loginNow(name, password);
     if (answer.user == 'NO'){
       this.setState({wrongUserName: true})
@@ -38,7 +41,7 @@ export default class App extends React.Component {
   async componentDidMount() {
     this.setState({loading: true});
     //const data = await this.props.fetchTickets();
-    this.setState({ loading: false, events: data.events });
+    this.setState({ loading: false});
   }
 
   render() {
