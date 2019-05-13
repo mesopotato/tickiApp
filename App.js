@@ -21,6 +21,8 @@ export default class App extends React.Component {
     tokenDa: false,
     name: '',
     password: '',
+    tickets: [],
+    scanner: false,
   }
   async onLogin() {
     this.setState({ loading: true });
@@ -32,15 +34,20 @@ export default class App extends React.Component {
     console.log('answer ist : ' + answer);
     if (answer.user == 'NO') {
       this.setState({ wrongUserName: true })
+      Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
     }
     if (answer.user == 'MISMATCH') {
       this.setState({ wrongPwd: true })
+      Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
     }
     if (answer.token) {
       this.setState({ token: answer.token })
       this.setState({ tokenDa: true });
     }
     this.setState({ loading: false })
+  }
+  openScanner() {
+    this.setState({scanner: true})
   }
 
   async componentDidMount() {
@@ -54,12 +61,29 @@ export default class App extends React.Component {
       loadingView();
     }
 
+    //token da && scanner false ??
     return this.state.tokenDa ? (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
+        <Text>Event Title</Text>
+        <Text>Veranstalter</Text>
+        
+      <Button
+        title={'Scannen'}
+        style={styles.input}
+        onPress={this.openScanner}
+      />
+        {this.state.tickets.map((ticket, i) => (
+          <div key={i}>
+            <Text >TicketKategorie : {ticket.kategorie}</Text>
+            <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
+            <Text >Verkauft {ticket.verkauft}</Text>
+            <Text >Eingescannt {ticket.abbgebucht}</Text>
+          </div>
+        ))}
       </View>
     ) : (
         <View style={styles.container}>
+
           <TextInput
             value={this.state.name}
             onChangeText={(name) => this.setState({ name })}
