@@ -16,9 +16,9 @@ export default class App extends React.Component {
 
   state = {
     loading: false,
-    events: [],
     didError: false,
     tokenDa: false,
+    event: {},
     name: '',
     password: '',
     tickets: [],
@@ -34,16 +34,25 @@ export default class App extends React.Component {
     console.log('answer ist : ' + answer);
     if (answer.user == 'NO') {
       this.setState({ wrongUserName: true })
+      console.log('wrong user name')
       Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
     }
     if (answer.user == 'MISMATCH') {
       this.setState({ wrongPwd: true })
+      console.log('wrong password')
       Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
     }
     if (answer.token) {
       this.setState({ token: answer.token })
-      this.setState({ tokenDa: true });
+      console.log('token ist : '+ this.state.token.token)
+      this.setState({event: answer.event})
+      console.log('event ost :' + this.state.event.title)
+      this.setState({tickets: answer.tickets})
+      console.log('tickest sind: '+ this.state.tickets[0].kategorie)
+      this.setState({ tokenDa: true })
+      console.log('token da ?' + this.state.tokenDa)
     }
+    console.log('if are done')
     this.setState({ loading: false })
   }
   openScanner() {
@@ -64,7 +73,7 @@ export default class App extends React.Component {
     //token da && scanner false ??
     return this.state.tokenDa ? (
       <View style={styles.container}>
-        <Text>Event Title</Text>
+        <Text>Event Title : {this.state.event.title}</Text>
         <Text>Veranstalter</Text>
         
       <Button
