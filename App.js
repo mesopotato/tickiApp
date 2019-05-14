@@ -43,20 +43,27 @@ export default class App extends React.Component {
       Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
     }
     if (answer.token) {
-      this.setState({ token: answer.token })
-      console.log('token ist : '+ this.state.token.token)
-      this.setState({event: answer.event})
-      console.log('event ost :' + this.state.event.title)
-      this.setState({tickets: answer.tickets})
-      console.log('tickest sind: '+ this.state.tickets[0].kategorie)
-      this.setState({ tokenDa: true })
-      console.log('token da ?' + this.state.tokenDa)
+
+
+      this.setState({ answer: answer }, function () {
+        console.log('token ist : ' + this.state.answer.token.token)
+
+        console.log('event ost :' + this.state.answer.event.title)
+
+        console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
+
+      })
+      
+      // this.setState({ tokenDa: true }, function () {
+      //   console.log('token da ?' + this.state.tokenDa)
+      // })
+
     }
     console.log('if are done')
     this.setState({ loading: false })
   }
   openScanner() {
-    this.setState({scanner: true})
+    this.setState({ scanner: true })
   }
 
   async componentDidMount() {
@@ -71,17 +78,17 @@ export default class App extends React.Component {
     }
 
     //token da && scanner false ??
-    return this.state.tokenDa ? (
+    return this.state.answer ? (
       <View style={styles.container}>
-        <Text>Event Title : {this.state.event.title}</Text>
+        <Text>Event Title : {this.state.answer.event.title}</Text>
         <Text>Veranstalter</Text>
-        
-      <Button
-        title={'Scannen'}
-        style={styles.input}
-        onPress={this.openScanner}
-      />
-        {this.state.tickets.map((ticket, i) => (
+
+        <Button
+          title={'Scannen'}
+          style={styles.input}
+          onPress={this.openScanner}
+        />
+        {this.state.answer.tickets.map((ticket, i) => (
           <div key={i}>
             <Text >TicketKategorie : {ticket.kategorie}</Text>
             <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
