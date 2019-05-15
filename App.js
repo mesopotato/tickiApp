@@ -13,19 +13,26 @@ export default class App extends React.Component {
     //fetchTickets
     loginNow
   }
-
-  state = {
-    loading: false,
-    didError: false,
-    tokenDa: false,
-    event: {},
-    name: '',
-    password: '',
-    tickets: [],
-    scanner: false,
+  constructor(props) {
+    super(props);
+    this.state = {
+      loading: false,
+      didError: false,
+      tokenDa: false,
+      title: '',
+      veranstalter: '',
+      name: '',
+      password: '',
+      tickets: [],
+      scanner: false,
+      token: '',
+    }
   }
+
   async onLogin() {
-    this.setState({ loading: true });
+    this.setState({ loading: true }, function () {
+      console.log('loading ist t:' + this.state.loading)
+    });
     const { name, password } = this.state;
 
     //Alert.alert('Credentials', `${name} + ${password}`);
@@ -43,24 +50,56 @@ export default class App extends React.Component {
       Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
     }
     if (answer.token) {
+      console.log('answer.token ist true')
+      console.log('title sollte :' + answer.event.title)
+      //seems to be too much.. 
+      // this.setState({ answer: answer, tokenDa: true }, function () {
+      //   console.log('token ist : ' + this.state.answer.token.token)
 
+      //   console.log('event ost :' + this.state.answer.event.title)
 
-      this.setState({ answer: answer }, function () {
-        console.log('token ist : ' + this.state.answer.token.token)
+      //   console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
 
-        console.log('event ost :' + this.state.answer.event.title)
-
-        console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
-
-      })
-      
-      // this.setState({ tokenDa: true }, function () {
-      //   console.log('token da ?' + this.state.tokenDa)
       // })
+      this.state = {
+        token: answer.token.token,
+        title: answer.event.title,
+        veranstalter: answer.event.veranstalter,
+        tickets: answer.tickets,
+        // tokenDa: true,
+      }
+
+      // }, function () {
+      //   console.log('token da ?' + this.state.tokenDa)
+      //   console.log('loading ist f: '+ this.state.loading)
+      // })
+
+      // this.setState({ answer: answer }, function () {
+      //   console.log('token ist : ' + this.state.answer.token.token)
+
+      //   console.log('event ost :' + this.state.answer.event.title)
+
+      //   console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
+
+      // })
+
+
 
     }
     console.log('if are done')
-    this.setState({ loading: false })
+    this.setState({
+
+     
+      title: this.state.title,
+      veranstalter: this.state.veranstalter,
+     // tickets: this.state.tickets,
+      loading: false,
+      tokenDa: true, 
+
+    }, function () {
+      console.log('loading ist f:' + this.state.loading)
+      console.log('title ist :'+ this.state.title)
+    })
   }
   openScanner() {
     this.setState({ scanner: true })
@@ -74,21 +113,25 @@ export default class App extends React.Component {
 
   render() {
     if (this.state.loading) {
-      loadingView();
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size='large' />
+        </View>
+      );
     }
 
     //token da && scanner false ??
-    return this.state.answer ? (
+    return this.state.tokenDa ? (
       <View style={styles.container}>
-        <Text>Event Title : {this.state.answer.event.title}</Text>
-        <Text>Veranstalter</Text>
+        <Text>Event Title : {this.state.title}</Text>
+        <Text>Veranstalter : {this.state.veranstalter}</Text>
 
         <Button
           title={'Scannen'}
           style={styles.input}
           onPress={this.openScanner}
         />
-        {this.state.answer.tickets.map((ticket, i) => (
+        {this.state.tickets.map((ticket, i) => (
           <div key={i}>
             <Text >TicketKategorie : {ticket.kategorie}</Text>
             <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
