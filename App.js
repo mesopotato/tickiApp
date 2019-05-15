@@ -52,6 +52,7 @@ export default class App extends React.Component {
     if (answer.token) {
       console.log('answer.token ist true')
       console.log('title sollte :' + answer.event.title)
+      console.log('tickets are :' + answer.tickets[0].kategorie)
       //seems to be too much.. 
       // this.setState({ answer: answer, tokenDa: true }, function () {
       //   console.log('token ist : ' + this.state.answer.token.token)
@@ -88,18 +89,31 @@ export default class App extends React.Component {
     }
     console.log('if are done')
     this.setState({
-
-     
-      title: this.state.title,
-      veranstalter: this.state.veranstalter,
-     // tickets: this.state.tickets,
       loading: false,
-      tokenDa: true, 
-
+      //tickets: answer.tickets,
+      title: this.state.title,
+      veranstalter: this.state.veranstalter,    
+      tokenDa: true,
     }, function () {
+      console.log('tikest set sind :' + this.state.tickets[0].kategorie)
       console.log('loading ist f:' + this.state.loading)
-      console.log('title ist :'+ this.state.title)
+      console.log('title ist :' + this.state.title)
+      
     })
+    // this.setState({
+
+    //  // tickets: this.state.tickets,
+    //   title: this.state.title,
+    //   veranstalter: this.state.veranstalter,
+    //  // 
+    //   loading: false,
+    //   tokenDa: true, 
+
+    // }, function () {
+    //   //console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+    //   console.log('loading ist f:' + this.state.loading)
+    //   console.log('title ist :'+ this.state.title)
+    // })
   }
   openScanner() {
     this.setState({ scanner: true })
@@ -123,8 +137,8 @@ export default class App extends React.Component {
     //token da && scanner false ??
     return this.state.tokenDa ? (
       <View style={styles.container}>
-        <Text>Event Title : {this.state.title}</Text>
-        <Text>Veranstalter : {this.state.veranstalter}</Text>
+        <Text>Event Title : </Text>
+        <Text>Veranstalter : </Text>
 
         <Button
           title={'Scannen'}
