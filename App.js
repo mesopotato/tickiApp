@@ -83,23 +83,27 @@ export default class App extends React.Component {
       //   console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
 
       // })
+      this.setState({
+        
+        tickets: answer.tickets,
+        title: this.state.title,
+        veranstalter: this.state.veranstalter, 
+        token: answer.token.token,   
+        tokenDa: true,
+        //loading: false,
+      }, function () {
+        console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+        console.log('token ist : ' + this.state.token);
+        console.log('loading ist f:' + this.state.loading)
+        console.log('title ist :' + this.state.title)
+        
+      })
 
 
 
     }
     console.log('if are done')
-    this.setState({
-      loading: false,
-      //tickets: answer.tickets,
-      title: this.state.title,
-      veranstalter: this.state.veranstalter,    
-      tokenDa: true,
-    }, function () {
-      console.log('tikest set sind :' + this.state.tickets[0].kategorie)
-      console.log('loading ist f:' + this.state.loading)
-      console.log('title ist :' + this.state.title)
-      
-    })
+
     // this.setState({
 
     //  // tickets: this.state.tickets,
@@ -120,9 +124,9 @@ export default class App extends React.Component {
   }
 
   async componentDidMount() {
-    this.setState({ loading: true });
+    //this.setState({ loading: true });
     //const data = await this.props.fetchTickets();
-    this.setState({ loading: false });
+    //this.setState({ loading: false });
   }
 
   render() {
