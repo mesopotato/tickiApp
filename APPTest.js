@@ -30,47 +30,99 @@ export default class App extends React.Component {
   }
 
   async onLogin() {
-    try {
-      this.setState({ loading: true }, function () {
-        console.log('loading ist t:' + this.state.loading)
-      });
+    this.setState({ loading: true }, function () {
+      console.log('loading ist t:' + this.state.loading)
+    });
+    const { name, password } = this.state;
 
-      const { name, password } = this.state;
-      //const answer = await this.props.loginNow(name, password);
-      const response = await fetch(`http://10.0.2.2:3000/api/login/${name}&${password}`);
-      const answer = await response.json();
-      // .then(res => res.json())
-      // .then(res => this.setState({ res: res }));
-      if (answer.user == 'NO') {
-        this.setState({ wrongUserName: true })
-        console.log('wrong user name')
-        Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
-      }
-      if (answer.user == 'MISMATCH') {
-        this.setState({ wrongPwd: true })
-        console.log('wrong password')
-        Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
-      }
-      if (answer.user == 'OK') {
-        this.setState({
-          tickets: answer.tickets,
-          title: answer.event.title,
-          veranstalter: answer.event.veranstalter,
-          token: answer.token.token,
-          tokenDa: true,
-          //loading: false,
-        }, function () {
-          console.log('tikest set sind :' + this.state.tickets[0].kategorie)
-          console.log('token ist : ' + this.state.token);
-          console.log('loading ist f:' + this.state.loading)
-          console.log('title ist :' + this.state.title)
+    //Alert.alert('Credentials', `${name} + ${password}`);
+    console.log('test in onLogin');
+    const answer = await this.props.loginNow(name, password);
+    console.log('answer ist : ' + answer);
+    if (answer.user == 'NO') {
+      this.setState({ wrongUserName: true })
+      console.log('wrong user name')
+      Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+    }
+    if (answer.user == 'MISMATCH') {
+      this.setState({ wrongPwd: true })
+      console.log('wrong password')
+      Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+    }
+    if (answer.token) {
+      console.log('answer.token ist true')
+      console.log('title sollte :' + answer.event.title)
+      console.log('tickets are :' + answer.tickets[0].kategorie)
+      //seems to be too much.. 
+      // this.setState({ answer: answer, tokenDa: true }, function () {
+      //   console.log('token ist : ' + this.state.answer.token.token)
 
-        })
-      }
+      //   console.log('event ost :' + this.state.answer.event.title)
+
+      //   console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
+
+      // })
+      // this.state = {
+      //   token: answer.token.token,
+      //   title: answer.event.title,
+      //   veranstalter: answer.event.veranstalter,
+      //   tickets: answer.tickets,
+      //   // tokenDa: true,
+      // }
+
+      // }, function () {
+      //   console.log('token da ?' + this.state.tokenDa)
+      //   console.log('loading ist f: '+ this.state.loading)
+      // })
+
+      // this.setState({ answer: answer }, function () {
+      //   console.log('token ist : ' + this.state.answer.token.token)
+
+      //   console.log('event ost :' + this.state.answer.event.title)
+
+      //   console.log('tickest sind: ' + this.state.answer.tickets[0].kategorie)
+
+      // })
+      // this.setState({      
+      //   tickets: this.state.tickets,
+      //   title: this.state.title,
+      //   veranstalter: this.state.veranstalter, 
+      //   token: answer.token.token,   
+      //   tokenDa: true,
+      //   //loading: false,
+      // }, function () {
+      //   console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+      //   console.log('token ist : ' + this.state.token);
+      //   console.log('loading ist f:' + this.state.loading)
+      //   console.log('title ist :' + this.state.title)
+        
+      // })
+      // this.setState({loading : false}, function(){
+      //    console.log('laoding ind promise is here :' + this.state.loading )
+      //  })
+
+
+
     }
-    catch{
-      console.log('in CATCH ERROR')
-    }
+    console.log('if are done')
+
+    // this.setState({
+
+    //  // tickets: this.state.tickets,
+    //   title: this.state.title,
+    //   veranstalter: this.state.veranstalter,
+    //  // 
+    //   loading: false,
+    //   tokenDa: true, 
+
+    // }, function () {
+    //   //console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+    //   console.log('loading ist f:' + this.state.loading)
+    //   console.log('title ist :'+ this.state.title)
+    // })
+  }
+  openScanner() {
+    this.setState({ scanner: true })
   }
 
   async componentDidMount() {
@@ -97,7 +149,7 @@ export default class App extends React.Component {
         <Button
           title={'Scannen'}
           style={styles.input}
-
+          onPress={this.openScanner}
         />
         {this.state.tickets.map((ticket, i) => (
           <div key={i}>
