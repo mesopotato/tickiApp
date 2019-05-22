@@ -121,6 +121,81 @@ export default class App extends React.Component {
     //   console.log('title ist :'+ this.state.title)
     // })
   }
+   //  onLogin() {
+  //   try {
+  //     this.setState({ loading: true },  function () {
+
+  //       console.log('loading ist t:' + this.state.loading)
+  //       const { name, password } = this.state;
+  //       //const answer = await this.props.loginNow(name, password);
+  //       // const response = await fetch(`http://10.0.2.2:3000/api/login/${name}&${password}`);
+  //       // const answer = await response.json();
+  //       fetch(`http://10.0.2.2:3000/api/login/${name}&${password}`)
+  //       .then((res) => res.json())
+  //       .then(res => {
+  //        //var answer = res.json();
+  //         console.log('in then' + res.user)
+  //         if (res.user == 'OK') {
+  //           console.log('answer .user is true');
+  //           this.setState({
+  //             tickets: res.tickets,
+  //             title: res.event.title,
+  //             veranstalter: res.event.veranstalter,
+  //             token: res.token.token,
+  //             tokenDa: true,
+  //             loading: false,
+  //           }, function () {
+  //             console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+  //             console.log('token ist : ' + this.state.token);
+  //             console.log('loading ist f:' + this.state.loading)
+  //             console.log('title ist :' + this.state.title)
+
+  //           })
+  //           // this.setState({loading: false},  function(){
+  //           //   console.log('loading ist ' + this.state.loading);
+  //           // });
+  //         }
+  //       });
+  // console.log('await await' + answer.user);
+  // // .then(res => res.json())
+  // // .then(res => this.setState({ res: res }));
+  // if (answer.user == 'NO') {
+  //   this.setState({ wrongUserName: true })
+  //   console.log('wrong user name')
+  //   Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+  // }
+  // if (answer.user == 'MISMATCH') {
+  //   this.setState({ wrongPwd: true })
+  //   console.log('wrong password')
+  //   Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+  // }
+  // if (answer.user == 'OK') {
+  //   console.log('answer .user is true');
+  //   this.setState({
+  //     tickets: answer.tickets,
+  //     title: answer.event.title,
+  //     veranstalter: answer.event.veranstalter,
+  //     token: answer.token.token,
+  //     tokenDa: true,
+  //     loading: false,
+  //   }, function () {
+  //     console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+  //     console.log('token ist : ' + this.state.token);
+  //     console.log('loading ist f:' + this.state.loading)
+  //     console.log('title ist :' + this.state.title)
+
+  //   })
+  //   // this.setState({loading: false},  function(){
+  //   //   console.log('loading ist ' + this.state.loading);
+  //   // });
+  // }
+  //   });
+
+  // }
+  // catch{
+  //   console.log('in CATCH ERROR')
+  // }
+
   openScanner() {
     this.setState({ scanner: true })
   }

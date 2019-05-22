@@ -29,12 +29,22 @@ export default class App extends React.Component {
     }
   }
 
-  async onLogin() {
-    try {
-      this.setState({ loading: true }, function () {
-        console.log('loading ist t:' + this.state.loading)
-      });
+  openScanner = () => {
+    this.setState({ scanner: true }, () => {
+      console.log('scanner ist currently: ' + this.state.scanner);
+      console.log('tickets sind :' + this.state.tickets[0].kategorie)
+      console.log('tickets sind :' + this.state.tickets[1].kategorie)
+      console.log('tickets anzahl sind :' + this.state.tickets[0].anzahl)
+    })
+  }
 
+  setLoading = () => {
+    this.setState({ loading: true }, () => this.onLogin())
+  }
+
+  onLogin = async () => {
+    try {
+      console.log('loading ist t:' + this.state.loading)
       const { name, password } = this.state;
       //const answer = await this.props.loginNow(name, password);
       const response = await fetch(`http://10.0.2.2:3000/api/login/${name}&${password}`);
@@ -42,41 +52,79 @@ export default class App extends React.Component {
       // .then(res => res.json())
       // .then(res => this.setState({ res: res }));
       if (answer.user == 'NO') {
-        this.setState({ wrongUserName: true })
-        console.log('wrong user name')
-        Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+        this.setState({
+          wrongUserName: true,
+          loading: false
+        }, function () {
+          console.log('wrong user name loading must be false :' + this.state.loading)
+          Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+        })
+
       }
       if (answer.user == 'MISMATCH') {
-        this.setState({ wrongPwd: true })
-        console.log('wrong password')
-        Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+        this.setState({
+          wrongPwd: true,
+          loading: false
+        }, function () {
+          console.log('wrong password loading must be : ' + this.state.loading)
+          Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+        })
+
       }
       if (answer.user == 'OK') {
+        console.log('answer .user is true');
         this.setState({
-          tickets: answer.tickets,
+          //tickets: answer.tickets,
           title: answer.event.title,
           veranstalter: answer.event.veranstalter,
           token: answer.token.token,
           tokenDa: true,
           //loading: false,
         }, function () {
-          console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+          //console.log('tikest set sind :' + this.state.tickets[0].kategorie)
           console.log('token ist : ' + this.state.token);
-          console.log('loading ist f:' + this.state.loading)
-          console.log('title ist :' + this.state.title)
 
+          console.log('title ist :' + this.state.title)
+          this.setState({
+            tickets: answer.tickets,
+            loading: false
+          }, function () {
+            console.log('tikest set sind :' + this.state.tickets[0].kategorie)
+            console.log('loading ist ' + this.state.loading);
+          });
         })
       }
     }
     catch{
       console.log('in CATCH ERROR')
+      this.setState({
+        loading: false
+      }, function () {
+        console.log('loading must be : ' + this.state.loading)
+        Alert.alert('Login ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+      })
     }
   }
 
-  async componentDidMount() {
-    //this.setState({ loading: true });
-    //const data = await this.props.fetchTickets();
-    //this.setState({ loading: false });
+  // async componentDidMount() {
+  //   //this.setState({ loading: true });
+  //   //const data = await this.props.fetchTickets();
+  //   //this.setState({ loading: false });
+  // }
+  renderArray() {
+    return this.state.tickets.map(function (ticket, i) {
+      return (
+        <View>
+          <div key={i}>
+            <Text >TicketKategorie : {ticket.kategorie}</Text>
+            <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
+            <Text >Verkauft {ticket.verkauft}</Text>
+            <Text >Eingescannt {ticket.abbgebucht}</Text>
+          </div>
+        </View>
+      )
+    });
+
   }
 
   render() {
@@ -91,22 +139,17 @@ export default class App extends React.Component {
     //token da && scanner false ??
     return this.state.tokenDa ? (
       <View style={styles.container}>
-        <Text>Event Title : </Text>
+        <Text>Event Title : {this.state.title}</Text>
         <Text>Veranstalter : </Text>
 
         <Button
           title={'Scannen'}
           style={styles.input}
+          onPress={this.openScanner}
 
         />
-        {this.state.tickets.map((ticket, i) => (
-          <div key={i}>
-            <Text >TicketKategorie : {ticket.kategorie}</Text>
-            <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
-            <Text >Verkauft {ticket.verkauft}</Text>
-            <Text >Eingescannt {ticket.abbgebucht}</Text>
-          </div>
-        ))}
+         {/* {this.renderArray()}  */}
+
       </View>
     ) : (
         <View style={styles.container}>
@@ -128,7 +171,7 @@ export default class App extends React.Component {
           <Button
             title={'Login'}
             style={styles.input}
-            onPress={this.onLogin.bind(this)}
+            onPress={this.setLoading.bind(this)}
           />
         </View>
 
