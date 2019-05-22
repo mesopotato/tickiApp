@@ -114,17 +114,22 @@ export default class App extends React.Component {
   renderArray() {
     return this.state.tickets.map(function (ticket, i) {
       return (
-        <View>
-          <div key={i}>
+        <View key={i}>
+          
             <Text >TicketKategorie : {ticket.kategorie}</Text>
             <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
             <Text >Verkauft {ticket.verkauft}</Text>
             <Text >Eingescannt {ticket.abbgebucht}</Text>
-          </div>
+          
         </View>
       )
     });
 
+    // return (<div>
+    //   {this.state.tickets.map((ticket, index) => (
+    //     <p>Hello, {ticket.kategorie}!</p>
+    //   ))}
+    // </div>);
   }
 
   render() {
@@ -140,7 +145,7 @@ export default class App extends React.Component {
     return this.state.tokenDa ? (
       <View style={styles.container}>
         <Text>Event Title : {this.state.title}</Text>
-        <Text>Veranstalter : </Text>
+        <Text>Veranstalter :{this.state.tickets[0].kategorie} </Text>
 
         <Button
           title={'Scannen'}
@@ -148,7 +153,12 @@ export default class App extends React.Component {
           onPress={this.openScanner}
 
         />
-         {/* {this.renderArray()}  */}
+         {this.renderArray()}  
+        <div>
+          {this.state.tickets.map((ticket, index) => (
+            <Text>Hello, {ticket.kategorie}!</Text>
+          ))}
+        </div>
 
       </View>
     ) : (
