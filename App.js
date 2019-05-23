@@ -1,6 +1,7 @@
-import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Alert, Button, TextInput } from 'react-native';
 
+import { StyleSheet,Linking, Dimensions, LayoutAnimation, StatusBar,  Text, View, ActivityIndicator, TouchableOpacity, Alert, Button, TextInput } from 'react-native';
+import React, { Component } from 'react';
+import { BarCodeScanner, Permissions } from 'expo';
 
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -26,8 +27,30 @@ export default class App extends React.Component {
       tickets: [],
       scanner: false,
       token: '',
+      hasCameraPermission: null,
+      lastScannedUrl: null,
     }
   }
+  componentDidMount() {
+    //   //this.setState({ loading: true });
+    //   //const data = await this.props.fetchTickets();
+    //   //this.setState({ loading: false });
+    this._requestCameraPermission();
+  }
+
+  _requestCameraPermission = async () => {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA);
+    this.setState({
+      hasCameraPermission: status === 'granted',
+    });
+  };
+
+  _handleBarCodeRead = result => {
+    if (result.data !== this.state.lastScannedUrl) {
+      LayoutAnimation.spring();
+      this.setState({ lastScannedUrl: result.data });
+    }
+  };
 
   openScanner = () => {
     this.setState({ scanner: true }, () => {
@@ -106,30 +129,21 @@ export default class App extends React.Component {
     }
   }
 
-  // async componentDidMount() {
-  //   //this.setState({ loading: true });
-  //   //const data = await this.props.fetchTickets();
-  //   //this.setState({ loading: false });
-  // }
+
   renderArray() {
     return this.state.tickets.map(function (ticket, i) {
       return (
         <View key={i}>
-          
-            <Text >TicketKategorie : {ticket.kategorie}</Text>
-            <Text > Datum und Türöffnung {ticket.gueltig_am}</Text>
-            <Text >Verkauft {ticket.verkauft}</Text>
-            <Text >Eingescannt {ticket.abbgebucht}</Text>
-          
+
+          <Text >TicketKategorie : {ticket.kategorie}</Text>
+          <Text > Datum und Türöffnung {ticket.gueltig_datum}</Text>
+          <Text >Verkauft {ticket.verkauft}</Text>
+          <Text >Eingescannt {ticket.abbgebucht}</Text>
+
         </View>
       )
     });
 
-    // return (<div>
-    //   {this.state.tickets.map((ticket, index) => (
-    //     <p>Hello, {ticket.kategorie}!</p>
-    //   ))}
-    // </div>);
   }
 
   render() {
@@ -143,7 +157,26 @@ export default class App extends React.Component {
 
     //token da && scanner false ??
     return this.state.tokenDa ? (
+
       <View style={styles.container}>
+        {this.state.hasCameraPermission === null
+          ? <Text>Requesting for camera permission</Text>
+          : this.state.hasCameraPermission === false
+            ? <Text style={{ color: '#fff' }}>
+              Camera permission is not granted
+              </Text>
+            : <BarCodeScanner
+              onBarCodeRead={this._handleBarCodeRead}
+              style={{
+                height: Dimensions.get('window').height,
+                width: Dimensions.get('window').width,
+              }}
+            />}
+
+        {this._maybeRenderUrl()}
+
+        <StatusBar hidden />
+
         <Text>Event Title : {this.state.title}</Text>
         <Text>Veranstalter :{this.state.tickets[0].kategorie} </Text>
 
@@ -153,12 +186,7 @@ export default class App extends React.Component {
           onPress={this.openScanner}
 
         />
-         {this.renderArray()}  
-        <div>
-          {this.state.tickets.map((ticket, index) => (
-            <Text>Hello, {ticket.kategorie}!</Text>
-          ))}
-        </div>
+        {this.renderArray()}
 
       </View>
     ) : (
@@ -184,11 +212,49 @@ export default class App extends React.Component {
             onPress={this.setLoading.bind(this)}
           />
         </View>
-
       )
   };
+  _handlePressUrl = () => {
+    Alert.alert(
+      'Open this URL?',
+      this.state.lastScannedUrl,
+      [
+        {
+          text: 'Yes',
+          onPress: () => Linking.openURL(this.state.lastScannedUrl),
+        },
+        { text: 'No', onPress: () => { } },
+      ],
+      { cancellable: false }
+    );
+  };
 
+  _handlePressCancel = () => {
+    this.setState({ lastScannedUrl: null });
+  };
 
+  _maybeRenderUrl = () => {
+    if (!this.state.lastScannedUrl) {
+      return;
+    }
+
+    return (
+      <View style={styles.bottomBar}>
+        <TouchableOpacity style={styles.url} onPress={this._handlePressUrl}>
+          <Text numberOfLines={1} style={styles.urlText}>
+            {this.state.lastScannedUrl}
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.cancelButton}
+          onPress={this._handlePressCancel}>
+          <Text style={styles.cancelButtonText}>
+            Cancel
+          </Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
 };
 
 displayMainview = () => {
