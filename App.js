@@ -1,15 +1,19 @@
 
-import { StyleSheet,Linking, Dimensions, LayoutAnimation, StatusBar,  Text, View, ActivityIndicator, TouchableOpacity, Alert, Button, TextInput } from 'react-native';
+import { StyleSheet, Linking, Dimensions, LayoutAnimation, StatusBar, Text, View, ActivityIndicator, TouchableOpacity, Alert, Button, TextInput } from 'react-native';
 import React, { Component } from 'react';
-import { BarCodeScanner, Permissions } from 'expo';
+import { Permissions } from 'expo';
+import Loading from './components/Loading';
+import Scanner from './components/Scanner';
+import Overview from './components/Overview';
 
 import { FontAwesome } from '@expo/vector-icons';
 
 import { fetchTickets } from './constants/api';
 import { loginNow } from './constants/api';
+import Login from './components/Login';
 
 
-export default class App extends React.Component {
+export default class App extends Component {
   static defaultProps = {
     //fetchTickets
     loginNow
@@ -43,34 +47,48 @@ export default class App extends React.Component {
     this.setState({
       hasCameraPermission: status === 'granted',
     });
-  };
+  }; 
 
-  _handleBarCodeRead = result => {
-    if (result.data !== this.state.lastScannedUrl) {
-      LayoutAnimation.spring();
-      this.setState({ lastScannedUrl: result.data });
+  render() {
+    if (this.state.loading == true){
+      return (
+        <Loading visible={this.state.loading} />
+      )
+    }
+    if (this.state.scanner == true){
+      return (
+        <Scanner visible={this.state.scanner} closeScanner={this.closeScanner} hasCameraPermission={this.state.hasCameraPermission}/>
+      )
+    }
+    if (this.state.tokenDa){
+      return (
+        <Overview title={this.state.title} tickets={this.state.tickets} openScanner={this.openScanner} logout={this.logout} />
+      )
+    }else {
+      return(
+        <Login visible={this.state.tokenDa} onLogin={this.setLoading}/>
+      )
     }
   };
-
-  openScanner = () => {
-    this.setState({ scanner: true }, () => {
+  logout = () => {
+    this.setState({ tokenDa: false }, () => {
       console.log('scanner ist currently: ' + this.state.scanner);
-      console.log('tickets sind :' + this.state.tickets[0].kategorie)
-      console.log('tickets sind :' + this.state.tickets[1].kategorie)
-      console.log('tickets anzahl sind :' + this.state.tickets[0].anzahl)
     })
   }
 
-  setLoading = () => {
-    this.setState({ loading: true }, () => this.onLogin())
+  setLoading = (name, password) => {
+    this.setState({ loading: true }, () => this.onLogin(name, password))
   }
 
-  onLogin = async () => {
+  onLogin = async (name, password) => {
     try {
       console.log('loading ist t:' + this.state.loading)
-      const { name, password } = this.state;
+      //const { name, password } = this.state;
       //const answer = await this.props.loginNow(name, password);
-      const response = await fetch(`http://10.0.2.2:3000/api/login/${name}&${password}`);
+      //heir für emulator 
+      //const response = await fetch(`http://10.0.2.2:3000/api/login/${name}&${password}`);
+      // heir für expo app
+      const response = await fetch(`http://192.168.1.149:3000/api/login/${name}&${password}`);
       const answer = await response.json();
       // .then(res => res.json())
       // .then(res => this.setState({ res: res }));
@@ -114,6 +132,7 @@ export default class App extends React.Component {
           }, function () {
             console.log('tikest set sind :' + this.state.tickets[0].kategorie)
             console.log('loading ist ' + this.state.loading);
+            this._requestCameraPermission();
           });
         })
       }
@@ -129,195 +148,18 @@ export default class App extends React.Component {
     }
   }
 
-
-  renderArray() {
-    return this.state.tickets.map(function (ticket, i) {
-      return (
-        <View key={i}>
-
-          <Text >TicketKategorie : {ticket.kategorie}</Text>
-          <Text > Datum und Türöffnung {ticket.gueltig_datum}</Text>
-          <Text >Verkauft {ticket.verkauft}</Text>
-          <Text >Eingescannt {ticket.abbgebucht}</Text>
-
-        </View>
-      )
-    });
-
+  openScanner = () => {
+    this.setState({ scanner: true }, () => {
+      console.log('scanner ist currently: ' + this.state.scanner);
+    })
   }
 
-  render() {
-    if (this.state.loading) {
-      return (
-        <View style={styles.container}>
-          <ActivityIndicator size='large' />
-        </View>
-      );
-    }
-
-    //token da && scanner false ??
-    return this.state.tokenDa ? (
-
-      <View style={styles.container}>
-        {this.state.hasCameraPermission === null
-          ? <Text>Requesting for camera permission</Text>
-          : this.state.hasCameraPermission === false
-            ? <Text style={{ color: '#fff' }}>
-              Camera permission is not granted
-              </Text>
-            : <BarCodeScanner
-              onBarCodeRead={this._handleBarCodeRead}
-              style={{
-                height: Dimensions.get('window').height,
-                width: Dimensions.get('window').width,
-              }}
-            />}
-
-        {this._maybeRenderUrl()}
-
-        <StatusBar hidden />
-
-        <Text>Event Title : {this.state.title}</Text>
-        <Text>Veranstalter :{this.state.tickets[0].kategorie} </Text>
-
-        <Button
-          title={'Scannen'}
-          style={styles.input}
-          onPress={this.openScanner}
-
-        />
-        {this.renderArray()}
-
-      </View>
-    ) : (
-        <View style={styles.container}>
-
-          <TextInput
-            value={this.state.name}
-            onChangeText={(name) => this.setState({ name })}
-            placeholder={'Username'}
-            style={styles.input}
-          />
-          <TextInput
-            value={this.state.password}
-            onChangeText={(password) => this.setState({ password })}
-            placeholder={'Password'}
-            secureTextEntry={true}
-            style={styles.input}
-          />
-
-          <Button
-            title={'Login'}
-            style={styles.input}
-            onPress={this.setLoading.bind(this)}
-          />
-        </View>
-      )
-  };
-  _handlePressUrl = () => {
-    Alert.alert(
-      'Open this URL?',
-      this.state.lastScannedUrl,
-      [
-        {
-          text: 'Yes',
-          onPress: () => Linking.openURL(this.state.lastScannedUrl),
-        },
-        { text: 'No', onPress: () => { } },
-      ],
-      { cancellable: false }
-    );
-  };
-
-  _handlePressCancel = () => {
-    this.setState({ lastScannedUrl: null });
-  };
-
-  _maybeRenderUrl = () => {
-    if (!this.state.lastScannedUrl) {
-      return;
-    }
-
-    return (
-      <View style={styles.bottomBar}>
-        <TouchableOpacity style={styles.url} onPress={this._handlePressUrl}>
-          <Text numberOfLines={1} style={styles.urlText}>
-            {this.state.lastScannedUrl}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.cancelButton}
-          onPress={this._handlePressCancel}>
-          <Text style={styles.cancelButtonText}>
-            Cancel
-          </Text>
-        </TouchableOpacity>
-      </View>
-    );
-  };
+  closeScanner = () => {
+    this.setState({ scanner: false }, () => {
+      console.log('scanner ist currently: ' + this.state.scanner);
+    })
+  }
 };
-
-displayMainview = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-    </View>
-  );
-}
-displayMainviewwithfetch = () => {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      {this.state.events.map((event, i) => (
-        <Text key={i}>{event.title}</Text>
-      ))}
-    </View>
-  );
-}
-
-displayLoginView = () => {
-  return (
-    <View style={styles.container}>
-      <TextInput
-        value={this.state.name}
-        onChangeText={(name) => this.setState({ name })}
-        placeholder={'Username'}
-        style={styles.input}
-      />
-      <TextInput
-        value={this.state.password}
-        onChangeText={(password) => this.setState({ password })}
-        placeholder={'Password'}
-        secureTextEntry={true}
-        style={styles.input}
-      />
-
-      <Button
-        title={'Login'}
-        style={styles.input}
-        onPress={this.onLogin.bind(this)}
-      />
-    </View>
-  );
-}
-
-displayError = () => {
-  return (
-    <View style={styles.userInfo}>
-      <Text style={styles.errorText}>
-        There was an error, please try again.
-      </Text>
-    </View>
-  );
-}
-
-loadingView = () => {
-  return (
-    <View style={styles.container}>
-      <ActivityIndicator size='large' />
-    </View>
-  );
-}
 
 const styles = StyleSheet.create({
   container: {
