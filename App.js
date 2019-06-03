@@ -5,6 +5,8 @@ import { Permissions } from 'expo';
 import Loading from './components/Loading';
 import Scanner from './components/Scanner';
 import Overview from './components/Overview';
+import FeedbackGreen from './components/FeedbackGreen';
+import FeedbackRed from './components/FeedbackRed';
 
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -47,37 +49,138 @@ export default class App extends Component {
     this.setState({
       hasCameraPermission: status === 'granted',
     });
-  }; 
+  };
 
   render() {
-    if (this.state.loading == true){
+    if (this.state.loading == true) {
       return (
-        <Loading visible={this.state.loading} />
+        <Loading
+          visible={this.state.loading} />
       )
     }
-    if (this.state.scanner == true){
+    if (this.abbgebucht == true) {
       return (
-        <Scanner visible={this.state.scanner} closeScanner={this.closeScanner} hasCameraPermission={this.state.hasCameraPermission}/>
+        <FeedbackGreen
+          visible={this.state.abbgebucht}
+          ticket={this.state.scannedTicket}
+          cancel={this.cancelTicket}
+          confirm={this.confirmTicket} />
       )
     }
-    if (this.state.tokenDa){
+    if (this.ungueltig == true) {
       return (
-        <Overview title={this.state.title} tickets={this.state.tickets} openScanner={this.openScanner} logout={this.logout} />
+        <FeedbackRed
+          visible={this.state.ungueltig}
+          confirm={this.confirmTicket} />
       )
-    }else {
-      return(
-        <Login visible={this.state.tokenDa} onLogin={this.setLoading}/>
+    }
+    if (this.state.scanner == true) {
+      return (
+        <Scanner
+          visible={this.state.scanner}
+          closeScanner={this.closeScanner}
+          hasCameraPermission={this.state.hasCameraPermission}
+          abbuchen={this.setAbbuchen} />
+      )
+    }
+    if (this.state.tokenDa) {
+      return (
+        <Overview
+          title={this.state.title}
+          tickets={this.state.tickets}
+          openScanner={this.openScanner}
+          logout={this.logout} 
+          gescanned={this.state.gescanned}/>
+      )
+    } else {
+      return (
+        <Login
+          visible={this.state.tokenDa}
+          onLogin={this.setLoading} />
       )
     }
   };
+
   logout = () => {
     this.setState({ tokenDa: false }, () => {
       console.log('scanner ist currently: ' + this.state.scanner);
     })
   }
+  cancelTicket = () => {
+    this.setState({ loading: true }, () => this.cancel())
+  }
+  cancel = async () => {
+    try{
+      const response = await fetch(this.state.lastScannedUrl +'&CANCEL')
+      const answer = await response.json();
+      if (answer.status == 'OK'){
+
+      }
+      if (answer.status == 'NOK'){
+
+      }
+    }catch{
+
+    }
+  }
+
+  confirmTicket = () => {
+    this.setState({
+
+    })
+
+  }
 
   setLoading = (name, password) => {
     this.setState({ loading: true }, () => this.onLogin(name, password))
+  }
+
+  setAbbuchen = (url) => {
+    this.setState({ loading: true }, () => this.abbuchen(url))
+  }
+
+  abbuchen = async (url) => {
+    try {
+      console.log('in abbuchen url ist :' + url);
+      console.log('mit token wäre: ' + url + '&' + this.state.token)
+      const response = await fetch(url);
+      const answer = await response.json();
+      if (answer.status == 'OK') {
+        this.setState({
+          abbgebucht: true,
+          loading: false,
+          lastScannedUrl: url,
+          scannedTicket: answer.ticket,
+          gescanned: answer.ticket.abbgebucht
+        })
+      }
+      if (answer.status == 'noTicket') {
+        this.setState({
+          abbgebucht: false,
+          ungueltig: true,
+          loading: false
+        })
+      }
+      if (answer.status == 'noToken') {
+        this.setState({
+          abbgebucht: false,
+          tokenDa: false,
+          token: '',
+          loading: false
+        })
+      }
+    } catch{
+      console.log('in CATCH ERROR')
+      this.setState({
+        loading: false,
+        lastScannedUrl: '',
+        abbgebucht: false
+      }, function () {
+        console.log('loading must be : ' + this.state.loading)
+        Alert.alert('Buchung ist fehlgeschlagen, versuchen Sie es noch einmal oder wenden Sie sich an den Veranstalter');
+      })
+
+    }
   }
 
   onLogin = async (name, password) => {
